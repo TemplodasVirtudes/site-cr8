@@ -5,7 +5,7 @@ import { TheProblem } from "@/components/TheProblem";
 import { TheSolution } from "@/components/TheSolution";
 import { HowItWorks } from "@/components/HowItWorks";
 import { ContactForm } from "@/components/ContactForm";
-import { Footer } from "@/components/Footer"; // <--- Importe aqui
+import { Footer } from "@/components/Footer"; 
 
 export default function Home() {
   return (
@@ -16,8 +16,13 @@ export default function Home() {
       <TheProblem />
       <TheSolution />
       <HowItWorks />
-      <ContactForm />
-      <Footer /> {/* <--- O Rodapé Profissional */}
+      
+      {/* 👇 A MÁGICA É AQUI: Criamos um alvo invisível com o id="formulario" */}
+      <div id="formulario">
+        <ContactForm />
+      </div>
+
+      <Footer /> 
     </main>
   );
 }
