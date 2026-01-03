@@ -1,261 +1,93 @@
-"use client";
+import Link from "next/link";
+import { Metadata } from "next";
+import { CheckCircle2 } from "lucide-react";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { Send, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
+export const metadata: Metadata = {
+  title: "Protocolo Recebido | CR8",
+  description: "Seus dados foram recebidos com sucesso.",
+};
 
-export default function MetodoPage() {
-  const router = useRouter();
-
-  // Estados do Formulário
-  const [formData, setFormData] = useState({
-    nome: "",
-    whatsapp: "",
-    email: "",
-    cidade: "",
-    instagram: "",
-    cenario: "",
-    mensagem: "",
-  });
-
-  // Estado para os checkboxes (Objetivos)
-  const [objetivos, setObjetivos] = useState<string[]>([]);
-
-  // Estado de Status (Controla o Loading e Erro)
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-
-  // SUA URL DO APPS SCRIPT
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwJfADfNVyDAJZIHaxpJPRwVFOB_vgphgcwyL5l1yQo2pV0JfVYAsPjdYu3xcBoZm_z/exec"; 
-
-  // Handlers (Funções de mudança)
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleCheckboxChange = (goal: string) => {
-    setObjetivos((prev) => 
-      prev.includes(goal) ? prev.filter(item => item !== goal) : [...prev, goal]
-    );
-  };
-
-  // ENVIO DO FORMULÁRIO
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus("loading");
-
-    try {
-      // 1. Prepara os dados
-      const payload = {
-        ...formData,
-        objetivos: objetivos.join(", "),
-        date: new Date().toISOString(),
-        origem: "Pagina Metodo" // Útil para saber de onde veio
-      };
-
-      // 2. Envia para o Google Sheets
-      // Nota: com 'no-cors', não conseguimos ler response.ok, então confiamos que se não der erro, foi.
-      await fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors", 
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      // 3. Sucesso e Redirecionamento
-      setStatus("success");
-      
-      // Pequeno delay para o usuário ver o check de sucesso antes de ir para a página de obrigado
-      setTimeout(() => {
-        router.push("/obrigado");
-      }, 1000);
-
-    } catch (error) {
-      console.error("Erro ao enviar:", error);
-      setStatus("error");
-    }
-  };
-
+export default function ObrigadoPage() {
   return (
-    <main className="min-h-screen bg-[#000000] text-white selection:bg-[#2e70f0]/30">
+    <main className="min-h-screen bg-black text-white selection:bg-[#2e70f0]/30 flex items-center justify-center relative overflow-hidden">
       
-      {/* SEÇÃO DO FORMULÁRIO */}
-      <section id="inscricao" className="relative w-full py-24">
-        {/* Efeitos de Fundo */}
-        <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-[#2e70f0]/5 blur-[120px] rounded-full pointer-events-none" />
+      {/* --- BACKGROUND ATMOSFÉRICO --- */}
+      {/* Luz azul de fundo */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#2e70f0]/20 blur-[100px] rounded-full pointer-events-none animate-pulse" />
+      {/* Grid sutil */}
+      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 pointer-events-none" />
 
-        <div className="container mx-auto px-6 max-w-4xl relative z-10">
-          
-          {/* Cabeçalho do Form */}
-          <div className="text-center mb-16">
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight"
-            >
-              Vamos estruturar o seu projeto?
-            </motion.h2>
-            <p className="text-[#a4bac8] text-lg max-w-2xl mx-auto">
-              Leva de 3 a 5 minutos. Suas respostas ativam nossa análise automática.
-            </p>
+      <div className="container mx-auto px-4 relative z-10 max-w-2xl text-center">
+        
+        {/* --- ÍCONE DE SUCESSO ANIMADO --- */}
+        <div className="mb-8 flex justify-center">
+          <div className="w-24 h-24 rounded-full bg-green-500/10 border border-green-500/50 flex items-center justify-center shadow-[0_0_30px_rgba(34,197,94,0.3)] animate-fade-in-up">
+            <CheckCircle2 size={48} className="text-green-400" />
           </div>
-
-          {/* Estado de Sucesso (Feedback Visual antes de redirecionar) */}
-          {status === "success" ? (
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="bg-[#24384a]/40 border border-[#2e70f0] rounded-2xl p-12 text-center"
-            >
-              <CheckCircle2 size={64} className="text-[#2e70f0] mx-auto mb-6" />
-              <h3 className="text-2xl font-bold text-white mb-4">Recebemos sua aplicação!</h3>
-              <p className="text-[#a4bac8] text-lg">
-                Redirecionando para a confirmação...
-              </p>
-              <div className="mt-6 flex justify-center">
-                <Loader2 className="animate-spin text-[#2e70f0]" size={32} />
-              </div>
-            </motion.div>
-          ) : (
-            
-            /* O Formulário em Si */
-            <motion.form 
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="space-y-12"
-              onSubmit={handleSubmit}
-            >
-              
-              {/* BLOCO 1: SOBRE VOCÊ */}
-              <div className="space-y-6">
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#2e70f0] text-xs">1</span>
-                  Sobre você
-                </h3>
-                
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-sm text-[#a4bac8]">Nome completo *</label>
-                    <input required name="nome" value={formData.nome} onChange={handleInputChange} type="text" placeholder="Como gosta de ser chamado" className="w-full bg-[#24384a]/30 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#2e70f0] focus:outline-none transition-colors" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm text-[#a4bac8]">WhatsApp *</label>
-                    <input required name="whatsapp" value={formData.whatsapp} onChange={handleInputChange} type="tel" placeholder="(00) 00000-0000" className="w-full bg-[#24384a]/30 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#2e70f0] focus:outline-none transition-colors" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm text-[#a4bac8]">E-mail corporativo *</label>
-                    <input required name="email" value={formData.email} onChange={handleInputChange} type="email" placeholder="seu@email.com" className="w-full bg-[#24384a]/30 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#2e70f0] focus:outline-none transition-colors" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm text-[#a4bac8]">Cidade / Estado</label>
-                    <input name="cidade" value={formData.cidade} onChange={handleInputChange} type="text" placeholder="Ex: São Paulo, SP" className="w-full bg-[#24384a]/30 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#2e70f0] focus:outline-none transition-colors" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm text-[#a4bac8]">Instagram profissional (Opcional)</label>
-                  <input name="instagram" value={formData.instagram} onChange={handleInputChange} type="text" placeholder="@seuprojeto" className="w-full bg-[#24384a]/30 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#2e70f0] focus:outline-none transition-colors" />
-                </div>
-              </div>
-
-              <div className="w-full h-px bg-white/5" />
-
-              {/* BLOCO 2: CONTEXTO */}
-              <div className="space-y-6">
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#2e70f0] text-xs">2</span>
-                  Seu contexto atual
-                </h3>
-
-                <div className="space-y-4">
-                  <label className="text-sm text-[#a4bac8]">Hoje, você se encaixa melhor em qual cenário?</label>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {["Coordeno um curso/formação", "Ofereço serviços profissionais", "Projeto educacional nascendo", "Ainda estou só na ideia"].map((option) => (
-                      <label key={option} className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all ${formData.cenario === option ? "border-[#2e70f0] bg-[#2e70f0]/10" : "border-white/10 bg-[#24384a]/20 hover:border-[#2e70f0]/50"}`}>
-                        <input 
-                          type="radio" 
-                          name="cenario" 
-                          value={option}
-                          checked={formData.cenario === option}
-                          onChange={handleInputChange}
-                          className="accent-[#2e70f0] w-5 h-5" 
-                        />
-                        <span className="text-white text-sm">{option}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="w-full h-px bg-white/5" />
-
-              {/* BLOCO 3: OBJETIVO */}
-              <div className="space-y-6">
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#2e70f0] text-xs">3</span>
-                  Objetivo e Expectativa
-                </h3>
-
-                <div className="space-y-2">
-                  <label className="text-sm text-[#a4bac8]">Qual é o principal objetivo agora?</label>
-                  <div className="grid md:grid-cols-2 gap-3">
-                     {["Organizar processo de venda", "Ter uma LP profissional", "Captar leads qualificados", "Automatizar atendimento"].map((goal) => (
-                       <label key={goal} className={`flex items-center gap-3 p-3 rounded-lg transition-colors cursor-pointer ${objetivos.includes(goal) ? "bg-[#2e70f0]/20" : "hover:bg-white/5"}`}>
-                         <input 
-                           type="checkbox" 
-                           checked={objetivos.includes(goal)}
-                           onChange={() => handleCheckboxChange(goal)}
-                           className="accent-[#2e70f0] w-4 h-4 rounded" 
-                         />
-                         <span className="text-gray-300 text-sm">{goal}</span>
-                       </label>
-                     ))}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm text-[#a4bac8]">O que mais te motivou a nos procurar?</label>
-                  <textarea name="mensagem" value={formData.mensagem} onChange={handleInputChange} rows={3} placeholder="Conte um pouco sobre sua maior dificuldade hoje..." className="w-full bg-[#24384a]/30 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#2e70f0] focus:outline-none transition-colors resize-none" />
-                </div>
-              </div>
-
-              {/* MENSAGEM DE ERRO */}
-              {status === "error" && (
-                <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center gap-3 text-red-400">
-                  <AlertCircle size={20} />
-                  <span>Ocorreu um erro ao enviar. Tente novamente ou chame no WhatsApp.</span>
-                </div>
-              )}
-
-              {/* BOTÃO DE ENVIO */}
-              <div className="pt-6 border-t border-white/10 flex flex-col items-center text-center gap-6">
-                <p className="text-sm text-[#5c7a8f]">
-                  <CheckCircle2 size={16} className="inline mr-2 text-[#2e70f0]" />
-                  Seus dados serão enviados diretamente para nossa equipe.
-                </p>
-                
-                <button 
-                  disabled={status === "loading"}
-                  type="submit"
-                  className="group relative px-10 py-5 bg-[#2e70f0] text-white font-bold text-lg rounded-full overflow-hidden shadow-[0_0_20px_rgba(46,112,240,0.4)] transition-all hover:scale-105 hover:shadow-[0_0_40px_rgba(46,112,240,0.6)] w-full md:w-auto disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  <span className="relative z-10 flex items-center justify-center gap-3">
-                    {status === "loading" ? "Enviando..." : "Enviar e seguir para a conversa"}
-                    {status === "loading" ? <Loader2 className="animate-spin" size={20} /> : <Send size={20} />}
-                  </span>
-                  {status !== "loading" && <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />}
-                </button>
-              </div>
-
-            </motion.form>
-          )}
-
         </div>
-      </section>
+
+        {/* --- TEXTO PRINCIPAL --- */}
+        <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
+          Protocolo <span className="text-green-400">Iniciado.</span>
+        </h1>
+        
+        <p className="text-lg text-gray-400 mb-12 leading-relaxed">
+          Recebemos suas informações com segurança. Nossa equipe técnica iniciará a análise do seu perfil agora mesmo.
+        </p>
+
+        {/* --- A LINHA DO TEMPO (STATUS) --- */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm mb-10 text-left">
+          <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6 border-b border-white/10 pb-2">Status da Solicitação</h3>
+          
+          <div className="space-y-6">
+            {/* Passo 1 - Concluído */}
+            <div className="flex items-center gap-4">
+              <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-black font-bold text-sm">✓</div>
+              <div>
+                <p className="font-bold text-white">Envio de Dados</p>
+                <p className="text-xs text-green-400">Recebido com sucesso</p>
+              </div>
+            </div>
+
+            {/* Linha Conectora */}
+            <div className="w-0.5 h-6 bg-white/10 ml-4 -my-2"></div>
+
+            {/* Passo 2 - Em andamento */}
+            <div className="flex items-center gap-4 opacity-100">
+              <div className="w-8 h-8 rounded-full border-2 border-[#2e70f0] flex items-center justify-center text-[#2e70f0] text-xs animate-spin-slow">
+                ⚙️
+              </div>
+              <div>
+                <p className="font-bold text-white">Triagem Técnica</p>
+                <p className="text-xs text-[#2e70f0] animate-pulse">Em processamento...</p>
+              </div>
+            </div>
+
+            {/* Linha Conectora */}
+            <div className="w-0.5 h-6 bg-white/10 ml-4 -my-2"></div>
+
+            {/* Passo 3 - Futuro */}
+            <div className="flex items-center gap-4 opacity-50">
+              <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center text-gray-500 text-xs">
+                3
+              </div>
+              <div>
+                <p className="font-bold text-gray-300">Contato via WhatsApp</p>
+                <p className="text-xs text-gray-500">Aguardando análise</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* --- BOTÃO DE AÇÃO --- */}
+        <Link 
+          href="/" 
+          className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors border-b border-transparent hover:border-white pb-1"
+        >
+          <span>← Voltar para a Home</span>
+        </Link>
+
+      </div>
     </main>
   );
 }
