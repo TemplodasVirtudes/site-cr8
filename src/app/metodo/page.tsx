@@ -2,73 +2,95 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-// Removemos o import Image pois não está sendo usado no momento, ou mantenha se for usar no futuro
+import { motion } from "framer-motion";
+import { Send, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 
-export default function MetodoPage() { // <--- NOME ATUALIZADO AQUI
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+export default function MetodoPage() {
+  const router = useRouter();
+  
+  // --- ESTADOS DO FORMULÁRIO ---
+  const [formData, setFormData] = useState({
+    nome: "",
+    whatsapp: "",
+    mensagem: "",
+  });
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
-  async function handleSubmit(e: any) {
+  // URL DO SEU SCRIPT
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwJfADfNVyDAJZIHaxpJPRwVFOB_vgphgcwyL5l1yQo2pV0JfVYAsPjdYu3xcBoZm_z/exec";
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
-    const formData = {
-      nome: e.target.nome.value,
-      whatsapp: e.target.whatsapp.value,
-      objetivo: ["DIAGNOSTICO_METODO"], 
-      mensagem: e.target.mensagem.value,
-    };
+    setStatus("loading");
 
     try {
-      await fetch("/api/submit", {
+      const payload = {
+        ...formData,
+        objetivos: ["DIAGNOSTICO_METODO"], // Tag específica desta página
+        date: new Date().toISOString(),
+        origem: "Pagina Metodo"
+      };
+
+      await fetch(SCRIPT_URL, {
         method: "POST",
-        body: JSON.stringify(formData),
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
-      setSuccess(true);
+
+      setStatus("success");
+      setTimeout(() => {
+        router.push("/obrigado");
+      }, 1000);
+
     } catch (error) {
-      setSuccess(true); 
-    } finally {
-      setLoading(false);
+      console.error(error);
+      setStatus("error");
     }
-  }
+  };
 
   return (
-    <main className="min-h-screen bg-black text-white selection:bg-blue-500/30">
+    <main className="min-h-screen bg-black text-white selection:bg-[#2e70f0]/30">
       
-      {/* --- SEÇÃO 1: HERO INSTITUCIONAL --- */}
+      {/* --- SEÇÃO 1: HERO (TEXTO + VÍDEO) --- */}
       <section className="relative pt-10 pb-16 md:pt-20 md:pb-24 overflow-hidden">
-        {/* Fundo Atmosférico */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-blue-900/10 blur-[120px] rounded-full pointer-events-none" />
+        {/* Luz de fundo */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#2e70f0]/10 blur-[120px] rounded-full pointer-events-none" />
         
         <div className="container mx-auto px-4 max-w-5xl relative z-10">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             
-            {/* Texto Focado em Dores/Solução */}
+            {/* Lado Esquerdo: Texto */}
             <div className="space-y-8">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-gray-300 text-xs font-bold tracking-wider uppercase">
-                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                <span className="w-2 h-2 rounded-full bg-[#2e70f0] animate-pulse"></span>
                 Método Operacional CR8
               </div>
               
               <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-                Sua operação precisa ser tão profissional quanto <span className="text-blue-500">seu conteúdo.</span>
+                Sua operação precisa ser tão profissional quanto <span className="text-[#2e70f0]">seu conteúdo.</span>
               </h1>
               
-              <p className="text-lg text-gray-400 leading-relaxed border-l-2 border-blue-900/50 pl-6">
+              <p className="text-lg text-gray-400 leading-relaxed border-l-2 border-[#2e70f0]/50 pl-6">
                 Para coordenadores e formadores que não podem perder tempo com processos manuais. 
                 Uma estrutura de bastidores que funciona sozinha.
               </p>
             </div>
 
-            {/* Vídeo / Motion Graphics */}
-            <div className="relative aspect-[9/16] max-w-[280px] mx-auto md:max-w-[320px] rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-b from-gray-900 to-black shadow-2xl shadow-blue-900/10">
+            {/* Lado Direito: VÍDEO (Motion Graphics) */}
+            <div className="relative aspect-[9/16] max-w-[280px] mx-auto md:max-w-[320px] rounded-2xl overflow-hidden border border-white/10 bg-gradient-to-b from-gray-900 to-black shadow-2xl shadow-[#2e70f0]/10">
                <video 
                   controls 
                   className="w-full h-full object-cover"
                   playsInline
-                  // poster="/capa-video.jpg" // Se tiver uma capa, descomente aqui
+                  // poster="/capa-video-metodo.jpg" 
                 >
-                  {/* ATENÇÃO: O arquivo deve se chamar exatamente 'video-metodo.mp4' na pasta public */}
+                  {/* ATENÇÃO: Verifique se o arquivo video-metodo.mp4 está na pasta public */}
                   <source src="/video-metodo.mp4" type="video/mp4" />
                   Seu navegador não suporta vídeos.
                 </video>
@@ -77,7 +99,7 @@ export default function MetodoPage() { // <--- NOME ATUALIZADO AQUI
         </div>
       </section>
 
-      {/* --- SEÇÃO 2: O CHECKLIST (DIAGNÓSTICO) --- */}
+      {/* --- SEÇÃO 2: CHECKLIST (3 Colunas) --- */}
       <section className="py-20 bg-white/[0.02] border-t border-white/5">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="text-center mb-16">
@@ -91,8 +113,8 @@ export default function MetodoPage() { // <--- NOME ATUALIZADO AQUI
               { title: "Quem busca Ordem", desc: "Você quer sair do 'amadorismo' do WhatsApp misturado." },
               { title: "Quem quer Escala", desc: "Preparar o terreno para receber mais alunos sem enlouquecer." },
             ].map((item, i) => (
-              <div key={i} className="bg-black/40 p-6 rounded-xl border border-white/10 hover:border-blue-500/30 transition-colors">
-                <div className="text-blue-500 text-xl mb-3">✓</div>
+              <div key={i} className="bg-black/40 p-6 rounded-xl border border-white/10 hover:border-[#2e70f0]/30 transition-colors">
+                <div className="text-[#2e70f0] text-xl mb-3">✓</div>
                 <h3 className="font-bold text-white mb-2">{item.title}</h3>
                 <p className="text-sm text-gray-400 leading-relaxed">{item.desc}</p>
               </div>
@@ -101,7 +123,7 @@ export default function MetodoPage() { // <--- NOME ATUALIZADO AQUI
         </div>
       </section>
 
-      {/* --- SEÇÃO 3: FORMULÁRIO DE APLICAÇÃO --- */}
+      {/* --- SEÇÃO 3: FORMULÁRIO SIMPLIFICADO --- */}
       <section id="diagnostico" className="py-24 relative">
         <div className="container mx-auto px-4 max-w-xl">
           
@@ -110,39 +132,39 @@ export default function MetodoPage() { // <--- NOME ATUALIZADO AQUI
               <h2 className="text-2xl font-bold text-white mb-2">Solicitar Diagnóstico</h2>
               <p className="text-gray-400 text-sm">
                 Analise se a nossa estrutura comporta a sua demanda. <br/>
-                <span className="text-blue-400">Sem custo. Sem compromisso.</span>
+                <span className="text-[#2e70f0]">Sem custo. Sem compromisso.</span>
               </p>
             </div>
 
-            {success ? (
-              <div className="text-center py-12 animate-fade-in bg-green-500/5 rounded-xl border border-green-500/20">
-                <div className="text-green-400 text-5xl mb-4">✓</div>
-                <h3 className="text-xl font-bold text-white mb-2">Solicitação Recebida</h3>
-                <p className="text-gray-400 text-sm px-4">Nossa equipe técnica entrará em contato para agendar o diagnóstico.</p>
+            {status === "success" ? (
+              <div className="text-center py-12 animate-fade-in">
+                <Loader2 className="animate-spin text-[#2e70f0] mx-auto mb-4" size={40} />
+                <p className="text-white">Redirecionando...</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Nome do Responsável</label>
-                  <input type="text" name="nome" required className="w-full bg-black/60 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none transition-colors" />
+                  <input type="text" name="nome" value={formData.nome} onChange={handleInputChange} required className="w-full bg-black/60 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#2e70f0] focus:outline-none transition-colors" />
                 </div>
 
                 <div>
                   <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Contato (WhatsApp)</label>
-                  <input type="tel" name="whatsapp" required className="w-full bg-black/60 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none transition-colors" />
+                  <input type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange} required className="w-full bg-black/60 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#2e70f0] focus:outline-none transition-colors" />
                 </div>
 
                 <div>
                   <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Qual seu maior gargalo hoje?</label>
-                  <textarea name="mensagem" rows={3} placeholder="Ex: Falta de tempo, desorganização, falta de equipe..." className="w-full bg-black/60 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-blue-500 focus:outline-none transition-colors resize-none" />
+                  <textarea name="mensagem" value={formData.mensagem} onChange={handleInputChange} rows={3} placeholder="Ex: Falta de tempo, desorganização..." className="w-full bg-black/60 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-[#2e70f0] focus:outline-none transition-colors resize-none" />
                 </div>
 
                 <button 
                   type="submit" 
-                  disabled={loading}
-                  className="w-full bg-white text-black font-bold py-4 rounded-lg hover:bg-gray-200 transition-transform transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                  disabled={status === "loading"}
+                  className="w-full bg-white text-black font-bold py-4 rounded-lg hover:bg-gray-200 transition-transform transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed mt-4 flex justify-center items-center gap-2"
                 >
-                  {loading ? "Processando..." : "Solicitar Análise de Estrutura"}
+                  {status === "loading" ? "Processando..." : "Solicitar Análise de Estrutura"}
+                  {status === "loading" && <Loader2 className="animate-spin" size={16} />}
                 </button>
               </form>
             )}
