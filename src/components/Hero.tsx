@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link"; // Importei o Link
 
 function FloatingPaths({ position }: { position: number }) {
   const paths = Array.from({ length: 36 }, (_, i) => ({
@@ -120,12 +121,15 @@ export function Hero() {
              transition={{ delay: 1.8 }}
              className="flex flex-col items-center gap-4"
           >
-            <button className="group relative px-8 py-4 bg-[#2e70f0] text-white font-bold text-lg rounded-full overflow-hidden shadow-[0_0_20px_rgba(46,112,240,0.4)] transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(46,112,240,0.6)]">
-              <span className="relative z-10 flex items-center gap-2">
-                👉 Quero conversar
-              </span>
-              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-            </button>
+            {/* LINK ENVOLVENDO O BOTÃO - CORREÇÃO AQUI */}
+            <Link href="#inscricao">
+              <button className="group relative px-8 py-4 bg-[#2e70f0] text-white font-bold text-lg rounded-full overflow-hidden shadow-[0_0_20px_rgba(46,112,240,0.4)] transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(46,112,240,0.6)] cursor-pointer">
+                <span className="relative z-10 flex items-center gap-2">
+                  👉 Quero conversar
+                </span>
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+              </button>
+            </Link>
             
             <span className="text-sm text-[#5c7a8f]">
               Conversa rápida. Sem compromisso. Sem pressão.
