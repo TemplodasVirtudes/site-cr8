@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Send, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 
 export function ContactForm() {
-  // Estados para guardar os dados
+  const router = useRouter(); // Inicializa o roteador
+
+  // Estados dos campos
   const [formData, setFormData] = useState({
     nome: "",
     whatsapp: "",
@@ -16,52 +19,56 @@ export function ContactForm() {
     mensagem: "",
   });
 
-  // Estado para os checkboxes (Objetivos)
+  // Estado dos checkboxes
   const [objetivos, setObjetivos] = useState<string[]>([]);
 
-  // Estados de envio (Carregando, Sucesso, Erro)
+  // Estado de envio
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
-  // SUA URL DO APPS SCRIPT AQUI (Coloque a url que copiou na implantação)
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwJfADfNVyDAJZIHaxpJPRwVFOB_vgphgcwyL5l1yQo2pV0JfVYAsPjdYu3xcBoZm_z/exec"; 
+  // URL DO SCRIPT (Que você forneceu)
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwJfADfNVyDAJZIHaxpJPRwVFOB_vgphgcwyL5l1yQo2pV0JfVYAsPjdYu3xcBoZm_z/exec";
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  // Função para atualizar inputs de texto
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Função para atualizar checkboxes
   const handleCheckboxChange = (goal: string) => {
     setObjetivos((prev) => 
       prev.includes(goal) ? prev.filter(item => item !== goal) : [...prev, goal]
     );
   };
 
+  // Função de Envio
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("loading");
 
     try {
-      // Prepara os dados para enviar
       const payload = {
         ...formData,
-        objetivos: objetivos.join(", "), // Junta os objetivos numa string só
-        date: new Date().toISOString()
+        objetivos: objetivos.join(", "),
+        date: new Date().toISOString(),
+        origem: "Site Principal (ContactForm)"
       };
 
-      // Envia para o Google Sheets (usando mode: 'no-cors' para evitar erro de navegador)
+      // Envia para o Google Sheets
       await fetch(SCRIPT_URL, {
         method: "POST",
-        mode: "no-cors", 
-        headers: {
-          "Content-Type": "application/json",
-        },
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-      // Sucesso!
+      // Se chegou aqui, deu certo!
       setStatus("success");
-      setFormData({ nome: "", whatsapp: "", email: "", cidade: "", instagram: "", cenario: "", mensagem: "" });
-      setObjetivos([]);
+      
+      // Espera 1 segundo mostrando sucesso e redireciona
+      setTimeout(() => {
+        router.push("/obrigado");
+      }, 1000);
 
     } catch (error) {
       console.error("Erro ao enviar:", error);
@@ -71,6 +78,7 @@ export function ContactForm() {
 
   return (
     <section id="inscricao" className="relative w-full py-24 bg-[#000000]">
+      {/* Luz de fundo */}
       <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-[#2e70f0]/5 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="container mx-auto px-6 max-w-4xl relative z-10">
@@ -98,15 +106,11 @@ export function ContactForm() {
             <CheckCircle2 size={64} className="text-[#2e70f0] mx-auto mb-6" />
             <h3 className="text-2xl font-bold text-white mb-4">Recebemos sua aplicação!</h3>
             <p className="text-[#a4bac8] text-lg">
-              Nossa equipe já está analisando seu contexto. <br/>
-              Em breve entraremos em contato pelo WhatsApp.
+              Redirecionando para a confirmação...
             </p>
-            <button 
-              onClick={() => setStatus("idle")}
-              className="mt-8 text-[#2e70f0] hover:text-white transition-colors text-sm font-semibold"
-            >
-              Enviar outra resposta
-            </button>
+            <div className="mt-6 flex justify-center">
+              <Loader2 className="animate-spin text-[#2e70f0]" size={32} />
+            </div>
           </motion.div>
         ) : (
           <motion.form 
@@ -117,7 +121,7 @@ export function ContactForm() {
             onSubmit={handleSubmit}
           >
             
-            {/* BLOCO 1: SOBRE VOCÊ */}
+            {/* BLOCO 1 */}
             <div className="space-y-6">
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#2e70f0] text-xs">1</span>
@@ -150,7 +154,7 @@ export function ContactForm() {
 
             <div className="w-full h-px bg-white/5" />
 
-            {/* BLOCO 2: CONTEXTO */}
+            {/* BLOCO 2 */}
             <div className="space-y-6">
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#2e70f0] text-xs">2</span>
@@ -179,7 +183,7 @@ export function ContactForm() {
 
             <div className="w-full h-px bg-white/5" />
 
-            {/* BLOCO 3: OBJETIVO */}
+            {/* BLOCO 3 */}
             <div className="space-y-6">
               <h3 className="text-xl font-bold text-white flex items-center gap-2">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#2e70f0] text-xs">3</span>
@@ -190,15 +194,15 @@ export function ContactForm() {
                 <label className="text-sm text-[#a4bac8]">Qual é o principal objetivo agora?</label>
                 <div className="grid md:grid-cols-2 gap-3">
                    {["Organizar processo de venda", "Ter uma LP profissional", "Captar leads qualificados", "Automatizar atendimento"].map((goal) => (
-                      <label key={goal} className={`flex items-center gap-3 p-3 rounded-lg transition-colors cursor-pointer ${objetivos.includes(goal) ? "bg-[#2e70f0]/20" : "hover:bg-white/5"}`}>
-                        <input 
-                          type="checkbox" 
-                          checked={objetivos.includes(goal)}
-                          onChange={() => handleCheckboxChange(goal)}
-                          className="accent-[#2e70f0] w-4 h-4 rounded" 
-                        />
-                        <span className="text-gray-300 text-sm">{goal}</span>
-                      </label>
+                     <label key={goal} className={`flex items-center gap-3 p-3 rounded-lg transition-colors cursor-pointer ${objetivos.includes(goal) ? "bg-[#2e70f0]/20" : "hover:bg-white/5"}`}>
+                       <input 
+                         type="checkbox" 
+                         checked={objetivos.includes(goal)}
+                         onChange={() => handleCheckboxChange(goal)}
+                         className="accent-[#2e70f0] w-4 h-4 rounded" 
+                       />
+                       <span className="text-gray-300 text-sm">{goal}</span>
+                     </label>
                    ))}
                 </div>
               </div>
@@ -209,7 +213,7 @@ export function ContactForm() {
               </div>
             </div>
 
-            {/* ERROR MESSAGE */}
+            {/* MENSAGEM DE ERRO */}
             {status === "error" && (
               <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center gap-3 text-red-400">
                 <AlertCircle size={20} />
@@ -217,7 +221,7 @@ export function ContactForm() {
               </div>
             )}
 
-            {/* FOOTER DO FORM */}
+            {/* BOTÃO */}
             <div className="pt-6 border-t border-white/10 flex flex-col items-center text-center gap-6">
               <p className="text-sm text-[#5c7a8f]">
                 <CheckCircle2 size={16} className="inline mr-2 text-[#2e70f0]" />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 // Removemos o import Image pois não está sendo usado no momento, ou mantenha se for usar no futuro
 
 export default function MetodoPage() { // <--- NOME ATUALIZADO AQUI
