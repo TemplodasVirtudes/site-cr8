@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Loader2, ArrowRight, CheckCircle2 } from "lucide-react";
+// Importamos o componente de FAQ
+import { FaqSection } from "@/components/sections/faq";
 
 export default function MetodoPage() {
   
@@ -272,6 +274,10 @@ export default function MetodoPage() {
           </div>
         </div>
       </section>
+
+      {/* --- NOVA SEÇÃO DE FAQ (Inserida Aqui) --- */}
+      <FaqSection />
+
     </main>
   );
 }
