@@ -28,8 +28,6 @@ export const metadata: Metadata = {
     siteName: "CR8",
     locale: "pt_BR",
     type: "website",
-    // Se você tiver uma imagem da logo ou capa, coloque em public/og-image.jpg
-    // images: [{ url: "/og-image.jpg", width: 1200, height: 630 }],
   },
   
   // Robôs de busca
@@ -45,9 +43,8 @@ export const metadata: Metadata = {
     },
   },
 
-  // Ícones (Favicon)
   icons: {
-    icon: "/favicon.ico", // Garanta que tem um arquivo favicon.ico na pasta public
+    icon: "/favicon.ico",
   },
 };
 
@@ -57,13 +54,36 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    // AJUSTE 1: Mudamos para pt-BR
+    <html lang="pt-BR">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+
+        {/* AJUSTE 2: O Cartão de Visita para IAs (JSON-LD) */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "ProfessionalService",
+              "name": "CR8 Estratégias Digitais",
+              "url": "https://www.cr8estrategiasdigitais.com.br",
+              "description": "Consultoria especializada em estruturação de bastidores, automação e gestão operacional para coordenadores de cursos e infoprodutores.",
+              "areaServed": "Brasil",
+              "knowsAbout": [
+                "Gestão Educacional",
+                "Automação de Marketing",
+                "Estruturação de Cursos",
+                "Processos Operacionais",
+                "Recuperação de Vendas"
+              ],
+              "priceRange": "$$$"
+            }),
+          }}
+        />
       </body>
     </html>
   );
 }
-
