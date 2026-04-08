@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
+// 1. ADICIONAMOS A IMPORTAÇÃO DA IMAGEM AQUI
+import Image from "next/image"; 
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -36,9 +38,16 @@ export function Header() {
     >
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between relative z-50">
         
-        {/* LOGO */}
-        <Link href="/" className="text-2xl font-bold tracking-tighter text-white z-50">
-          CR8<span className="text-[#2e70f0]">.</span>
+        {/* 2. SUBSTITUÍMOS O TEXTO PELA IMAGEM AQUI */}
+        <Link href="/" className="z-50 flex items-center">
+          <Image 
+            src="/logo.png" // Se você renomeou o arquivo, mude para "/logo.png"
+            alt="CR8 Estratégias Digitais"
+            width={180} // Largura da logo
+            height={45} // Altura da logo
+            priority
+            className="object-contain"
+          />
         </Link>
 
         {/* MENU DESKTOP */}
@@ -58,7 +67,7 @@ export function Header() {
         {/* CTA BUTTON DESKTOP */}
         <div className="hidden md:block">
           <Link 
-            href="#inscricao" // Aponta para o ID do formulário
+            href="#inscricao"
             className="px-6 py-2 text-sm font-bold bg-[#2e70f0] text-white rounded-lg hover:bg-blue-600 transition-all shadow-[0_0_15px_rgba(46,112,240,0.3)]"
           >
             Quero conversar
@@ -74,7 +83,7 @@ export function Header() {
         </button>
       </div>
 
-      {/* --- MENU MOBILE (O BLOCO QUE FALTAVA) --- */}
+      {/* --- MENU MOBILE --- */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -87,7 +96,7 @@ export function Header() {
               <Link
                 key={link.name}
                 href={link.href}
-                onClick={() => setMobileOpen(false)} // Fecha ao clicar
+                onClick={() => setMobileOpen(false)}
                 className="text-2xl font-bold text-gray-300 hover:text-white transition-colors"
               >
                 {link.name}
