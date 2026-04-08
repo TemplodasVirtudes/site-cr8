@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import { Instagram, Linkedin, MessageCircle } from "lucide-react";
+// 1. IMPORTAR O COMPONENTE DE IMAGEM
+import Image from "next/image";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -13,8 +15,15 @@ export function Footer() {
           
           {/* Coluna 1: Marca e Descrição */}
           <div className="md:col-span-2 space-y-4">
-            <div className="text-2xl font-bold tracking-tighter text-white">
-              CR8<span className="text-[#2e70f0]">.</span>
+            {/* 2. SUBSTITUÍMOS O TEXTO PELA LOGO AQUI */}
+            <div className="flex items-center">
+              <Image 
+                src="/logo.png" 
+                alt="Logo CR8 Estratégias Digitais" 
+                width={160} 
+                height={40} 
+                className="object-contain"
+              />
             </div>
             <p className="text-[#a4bac8] text-sm leading-relaxed max-w-sm">
               Transformamos cursos e serviços em estruturas digitais que vendem com processo.
